@@ -1,0 +1,39 @@
+name: Validate KQ-LUCR Ultra
+on:
+  push:
+    paths:
+      - 'validate_kq_lucr_ultra.py'
+      - '.github/workflows/validate_ultra.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pandas pyarrow scikit-learn numpy
+      - name: Download KRX-derived marcap parquet 2015-2026
+        run: |
+          mkdir -p data
+          seq 2015 2026 | xargs -I{} -P6 sh -c 'curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-{}.parquet" -o "data/marcap-{}.parquet"'
+      - name: Run fixed validation
+        run: python validate_kq_lucr_ultra.py
+      - name: Commit final result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add result_ultra.json signals_ultra_2020_2026.csv events_summary.csv
+          git commit -m "Store KQ-LUCR fixed 2020-2026 validation result" || exit 0
+          git push
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kq-lucr-ultra-results
+          path: |
+            result_ultra.json
+            signals_ultra_2020_2026.csv
+            events_summary.csv
