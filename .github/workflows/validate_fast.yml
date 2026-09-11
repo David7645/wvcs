@@ -1,0 +1,30 @@
+name: Validate KQ-LUCR Fast
+on:
+  push:
+    paths:
+      - 'validate_kq_lucr_fast.py'
+      - '.github/workflows/validate_fast.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pandas pyarrow scikit-learn numpy
+      - name: Download marcap parquet 2015-2026
+        run: |
+          mkdir -p data
+          seq 2015 2026 | xargs -I{} -P4 sh -c 'curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-{}.parquet" -o "data/marcap-{}.parquet"'
+          ls -lh data
+      - run: python validate_kq_lucr_fast.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kq-lucr-fast-results
+          path: |
+            result.json
+            events_summary.csv
+            signals_2020_2026.csv
