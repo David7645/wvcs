@@ -22,7 +22,7 @@ m=g.agg(breadth=("ChangesRatio",lambda s:(s>0).mean()),up5=("ChangesRatio",lambd
         eq=("ChangesRatio","mean"),lucount=("lu","sum"),amt=("Amount","sum"))
 m["b5"]=m.breadth.rolling(5,min_periods=3).mean(); m["b20"]=m.breadth.rolling(20,min_periods=5).mean()
 m["u5"]=m.up5.rolling(5,min_periods=3).mean(); m["u20"]=m.up5.rolling(20,min_periods=5).mean()
-m["e5"]=m.eq.rolling(5,min_periods=3).mean(); m["a20"]=m.amt.rolling(20,min_periods=5).median()
+m["e5"]=m["eq"].rolling(5,min_periods=3).mean(); m["a20"]=m.amt.rolling(20,min_periods=5).median()
 m["risk"]=(m.e5.rank(pct=True)+m.b5.rank(pct=True)+m.u5.rank(pct=True)+(m.amt/m.a20).rank(pct=True))/4
 m["leader"]=d[d.ChangesRatio>=5].groupby("Date").ChangesRatio.mean()
 m["leader"]=m.leader.fillna(0); MD=m.to_dict("index")
@@ -156,10 +156,10 @@ c0=hgb();c0.fit(x[LEAD],x.W4);p3=c0.predict_proba(va18[LEAD])[:,1]
 cons18=(p1*p2*p3)**(1/3)
 best=None
 for T in ["W3","W4","W5"]:
-    v=va18[va18.elig==1].copy(); X=np.c_[cons18[va18.elig.values==1],v.gap.values,v.r1.values,v.r5.values,v.comp.values,v.ar.values,v.corr.values,v.risk.values]
+    v=va18[va18.elig==1].copy(); X=np.c_[cons18[va18.elig.values==1],v.gap.values,v.r1.values,v.r5.values,v.comp.values,v.ar.values,v["corr"].values,v.risk.values]
     sm=hgb();sm.fit(X,v[T])
-    Xc=np.c_[cons_c,ca.gap.values,ca.r1.values,ca.r5.values,ca.comp.values,ca.ar.values,ca.corr.values,ca.risk.values]
-    Xt=np.c_[cons_t,te.gap.values,te.r1.values,te.r5.values,te.comp.values,te.ar.values,te.corr.values,te.risk.values]
+    Xc=np.c_[cons_c,ca.gap.values,ca.r1.values,ca.r5.values,ca.comp.values,ca.ar.values,ca["corr"].values,ca.risk.values]
+    Xt=np.c_[cons_t,te.gap.values,te.r1.values,te.r5.values,te.comp.values,te.ar.values,te["corr"].values,te.risk.values]
     cs=sm.predict_proba(Xc)[:,1];ts=sm.predict_proba(Xt)[:,1];g=pick(cs,T);au=audit(ts,T,g["th"]);key=(g["ok"],wil(g["k"],g["n"]),g["avg"])
     if best is None or key>best[0]:best=(key,T,g,au)
 R.append({"model":"M5_TWO_STAGE_ALPHA","target":best[1],"cal":best[2],"audit":best[3]})
