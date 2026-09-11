@@ -1,0 +1,29 @@
+name: Research Recent Flow Five Models v1
+on:
+  push:
+    paths:
+      - 'research_recent_flow_five_models_v1.py'
+      - '.github/workflows/research_recent_flow_five_models_v1.yml'
+  workflow_dispatch:
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pandas pyarrow scikit-learn numpy
+      - name: Download marcap
+        run: |
+          mkdir -p data
+          curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-2026.parquet" -o "data/marcap-2026.parquet"
+      - name: Clone flow data
+        run: git clone --depth 1 https://github.com/james-brand/korea-market-data.git flowdata
+      - name: Run recent flow research
+        run: python research_recent_flow_five_models_v1.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: recent-flow-five-models-v1-result
+          path: recent_flow_five_models_v1_result.json
