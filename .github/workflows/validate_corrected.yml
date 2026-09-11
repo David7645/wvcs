@@ -1,0 +1,27 @@
+name: Validate KQ-LUCR Corrected
+on:
+  push:
+    paths:
+      - 'validate_kq_lucr_corrected.py'
+      - '.github/workflows/validate_corrected.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pandas pyarrow scikit-learn numpy
+      - name: Download KRX-derived marcap parquet
+        run: |
+          mkdir -p data
+          seq 2015 2026 | xargs -I{} -P6 sh -c 'curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-{}.parquet" -o "data/marcap-{}.parquet"'
+      - name: Run corrected fixed validation
+        run: python validate_kq_lucr_corrected.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kq-lucr-corrected-result
+          path: result_corrected.json
