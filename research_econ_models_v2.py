@@ -74,6 +74,8 @@ risk_state=int(np.argmax(risk_score))
 
 def causal_hmm_filter(X):
     trans=hmm.transmat_; start=hmm.startprob_; means=hmm.means_; cov=hmm.covars_
+    if cov.ndim==3:
+        cov=np.diagonal(cov,axis1=1,axis2=2)
     prev=start.copy(); out=[]
     for x in X:
         if np.any(~np.isfinite(x)):
