@@ -117,9 +117,9 @@ def model():
 
 # expanding walk-forward folds; last test date leaves 5 trading days of future.
 folds=[
- ("2026-08-17","2026-08-18","2026-08-21"),
- ("2026-08-24","2026-08-24","2026-08-28"),
- ("2026-08-31","2026-08-31","2026-09-04"),
+ ("2026-08-10","2026-08-18","2026-08-21"),
+ ("2026-08-14","2026-08-24","2026-08-28"),
+ ("2026-08-21","2026-08-31","2026-09-04"),
 ]
 models={"BASE_PRICE":PRICE,"F1_FOREIGN_ACCUM":F1,"F2_SMARTMONEY_CONSENSUS":F2,
         "F3_FLOW_ACCEL":F3,"F4_ABSORPTION":F4,"F5_FLOW_SECTOR":F5}
