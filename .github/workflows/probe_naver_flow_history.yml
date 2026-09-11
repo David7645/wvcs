@@ -1,0 +1,16 @@
+name: Probe Naver Flow History
+on:
+  push:
+    paths:
+      - 'probe_naver_flow_history.py'
+      - '.github/workflows/probe_naver_flow_history.yml'
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q pandas lxml requests
+      - run: python probe_naver_flow_history.py
