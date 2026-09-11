@@ -1,0 +1,27 @@
+name: Research Macro Micro v3
+on:
+  push:
+    paths:
+      - 'research_macro_micro_v3.py'
+      - '.github/workflows/research_macro_micro_v3.yml'
+  workflow_dispatch:
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pandas pyarrow scikit-learn numpy
+      - name: Download marcap
+        run: |
+          mkdir -p data
+          seq 2015 2026 | xargs -I{} -P6 sh -c 'curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-{}.parquet" -o "data/marcap-{}.parquet"'
+      - name: Run macro micro research
+        run: python research_macro_micro_v3.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macro-micro-v3-result
+          path: macro_micro_v3_result.json
