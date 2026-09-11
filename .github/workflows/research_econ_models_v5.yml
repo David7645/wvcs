@@ -1,0 +1,27 @@
+name: Research Economic Models v5
+on:
+  push:
+    paths:
+      - 'research_econ_models_v5.py'
+      - '.github/workflows/research_econ_models_v5.yml'
+  workflow_dispatch:
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pandas pyarrow scikit-learn numpy scipy hmmlearn
+      - name: Download marcap
+        run: |
+          mkdir -p data
+          seq 2015 2026 | xargs -I{} -P6 sh -c 'curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-{}.parquet" -o "data/marcap-{}.parquet"'
+      - name: Run economics model research
+        run: python research_econ_models_v5.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: econ-model-result-v5
+          path: econ_model_result.json
