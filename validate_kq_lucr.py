@@ -222,3 +222,5 @@ with open("result.json","w",encoding="utf-8") as f: json.dump(result,f,ensure_as
 sig[["Code","Date","year","d1_gap","path_type","positive","mfe","mae","d5ret","p"]].to_csv("signals_2020_2026.csv",index=False)
 print("RESULT_JSON")
 print(json.dumps(result,ensure_ascii=False,indent=2))
+
+# trigger validation
