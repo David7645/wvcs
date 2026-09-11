@@ -19,6 +19,8 @@ jobs:
         run: |
           mkdir -p data
           seq 2015 2026 | xargs -I{} -P6 sh -c 'curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-{}.parquet" -o "data/marcap-{}.parquet"'
+      - name: Patch field name
+        run: python -c "p='research_prelu_five_models_v1.py';s=open(p).read();open(p,'w').write(s.replace('m.eq.rolling(5,min_periods=3).mean()','m[\"eq\"].rolling(5,min_periods=3).mean()'))"
       - name: Run PRELU research
         run: python research_prelu_five_models_v1.py
       - uses: actions/upload-artifact@v4
