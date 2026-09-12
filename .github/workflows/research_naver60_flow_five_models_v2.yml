@@ -1,0 +1,29 @@
+name: Research Naver60 Flow Five Models v2
+on:
+  push:
+    paths:
+      - 'research_naver60_flow_five_models_v2.py'
+      - '.github/workflows/research_naver60_flow_five_models_v2.yml'
+  workflow_dispatch:
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pandas pyarrow scikit-learn numpy requests
+      - name: Download marcap
+        run: |
+          mkdir -p data
+          curl -L --fail --retry 3 -sS "https://raw.githubusercontent.com/FinanceData/marcap/master/data/marcap-2026.parquet" -o "data/marcap-2026.parquet"
+      - name: Run 60-day flow research
+        run: python research_naver60_flow_five_models_v2.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: naver60-flow-five-models-v2-result
+          path: |
+            naver60_flow_five_models_v2_result.json
+            naver60_flow_cache.parquet
